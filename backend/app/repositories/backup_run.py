@@ -54,5 +54,14 @@ class BackupRunRepository:
             .order_by(BackupRun.id.desc())
             .limit(1)
         )
+    
+    def latest_for_jobs(self, jobs: list) -> dict[str, BackupRun | None]:
+        result: dict[str, BackupRun | None] = {}
+
+        for job in jobs:
+            key = f"{job.host}::{job.job}"
+            result[key] = self.latest_by_job(job.host, job.job)
+
+        return result
 
         return self.db.scalars(stmt).first()

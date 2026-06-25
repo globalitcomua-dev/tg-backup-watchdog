@@ -55,3 +55,17 @@ class BackupJob(Base):
         default=datetime.utcnow,
         index=True,
     )
+class TelegramOffset(Base):
+    __tablename__ = "telegram_offsets"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+
+    bot_name: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    last_update_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        index=True,
+    )

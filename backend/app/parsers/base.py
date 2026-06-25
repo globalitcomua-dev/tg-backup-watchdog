@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.domain.report import BackupReport
+from app.parsers.parsed_message import ParsedBackupMessage
 
 
 class BackupMessageParser(ABC):
@@ -9,5 +9,5 @@ class BackupMessageParser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def parse(self, text: str) -> BackupReport:
+    def parse(self, text: str) -> ParsedBackupMessage:
         raise NotImplementedError

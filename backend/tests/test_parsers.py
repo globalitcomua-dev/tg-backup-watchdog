@@ -13,6 +13,7 @@ def test_parse_cobian_english_warning():
     assert report.host == "TopFace"
     assert report.job == "TopFace"
     assert report.engine == "cobian"
+    assert report.parser_name == "cobian"
     assert report.status == BackupStatus.WARNING
     assert report.error_count == 2
     assert report.duration_seconds == 6564
@@ -28,6 +29,7 @@ def test_parse_cobian_ukrainian_success():
 
     assert report.host == "Vivere"
     assert report.engine == "cobian"
+    assert report.parser_name == "cobian"
     assert report.status == BackupStatus.SUCCESS
     assert report.error_count == 0
     assert report.duration_seconds == 129
@@ -42,6 +44,7 @@ def test_parse_custom_ok():
 
     assert report.host == "Vartovi"
     assert report.engine == "custom"
+    assert report.parser_name == "custom-ok"
     assert report.status == BackupStatus.SUCCESS
 
 
@@ -56,5 +59,6 @@ def test_parse_restic_ok():
 
     assert report.host == "Ideatech"
     assert report.engine == "restic"
+    assert report.parser_name == "restic"
     assert report.status == BackupStatus.SUCCESS
     assert report.snapshot_id == "098343e9"

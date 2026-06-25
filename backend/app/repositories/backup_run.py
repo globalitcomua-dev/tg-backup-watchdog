@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.domain.report import BackupReport
+from app.domain.backup_report import BackupReport
 from app.db.models import BackupRun
 
 

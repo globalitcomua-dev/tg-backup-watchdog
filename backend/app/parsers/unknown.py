@@ -1,4 +1,4 @@
-from app.domain.report import BackupReport
+from app.parsers.parsed_message import ParsedBackupMessage
 from app.domain.status import BackupStatus
 from app.parsers.base import BackupMessageParser
 from app.parsers.utils import strip_telegram_prefix
@@ -8,7 +8,7 @@ class UnknownParser(BackupMessageParser):
     def match(self, text: str) -> bool:
         return True
 
-    def parse(self, text: str) -> BackupReport:
+    def parse(self, text: str) -> ParsedBackupMessage:
         message = strip_telegram_prefix(text)
 
         status = BackupStatus.UNKNOWN
@@ -16,7 +16,8 @@ class UnknownParser(BackupMessageParser):
         if "failed" in message.lower() or "error" in message.lower() or "помил" in message.lower():
             status = BackupStatus.WARNING
 
-        return BackupReport(
+        return ParsedBackupMessage(
+            parser_name="unknown",
             host="unknown",
             job="unknown",
             engine="unknown",

@@ -1,6 +1,6 @@
 import re
 
-from app.domain.report import BackupReport
+from app.parsers.parsed_message import ParsedBackupMessage
 from app.domain.status import BackupStatus
 from app.parsers.base import BackupMessageParser
 from app.parsers.utils import strip_telegram_prefix
@@ -12,7 +12,7 @@ class CustomOkParser(BackupMessageParser):
 
         return "[OK]" in message or "✅" in message
 
-    def parse(self, text: str) -> BackupReport:
+    def parse(self, text: str) -> ParsedBackupMessage:
         message = strip_telegram_prefix(text)
 
         host = "custom"
@@ -22,7 +22,8 @@ class CustomOkParser(BackupMessageParser):
         if host_match:
             host = host_match.group(1)
 
-        return BackupReport(
+        return ParsedBackupMessage(
+            parser_name="custom-ok",
             host=host,
             job=host,
             engine="custom",

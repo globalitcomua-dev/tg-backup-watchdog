@@ -1,7 +1,7 @@
-from app.domain.report import BackupReport
 from app.parsers.base import BackupMessageParser
 from app.parsers.cobian import CobianParser
 from app.parsers.custom import CustomOkParser
+from app.parsers.parsed_message import ParsedBackupMessage
 from app.parsers.restic import ResticParser
 from app.parsers.unknown import UnknownParser
 
@@ -15,7 +15,7 @@ class BackupParserDispatcher:
             UnknownParser(),
         ]
 
-    def parse(self, text: str) -> BackupReport:
+    def parse(self, text: str) -> ParsedBackupMessage:
         for parser in self.parsers:
             if parser.match(text):
                 return parser.parse(text)

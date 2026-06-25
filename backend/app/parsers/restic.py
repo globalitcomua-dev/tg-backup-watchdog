@@ -1,6 +1,6 @@
 import re
 
-from app.domain.report import BackupReport
+from app.parsers.parsed_message import ParsedBackupMessage
 from app.domain.status import BackupStatus
 from app.parsers.base import BackupMessageParser
 from app.parsers.utils import strip_telegram_prefix
@@ -12,7 +12,7 @@ class ResticParser(BackupMessageParser):
 
         return "Restic backup" in message
 
-    def parse(self, text: str) -> BackupReport:
+    def parse(self, text: str) -> ParsedBackupMessage:
         message = strip_telegram_prefix(text)
 
         host_match = re.search(r"^\[([^\]]+)\].*?Restic backup", message, re.IGNORECASE | re.DOTALL)
@@ -37,7 +37,8 @@ class ResticParser(BackupMessageParser):
         elif "failed" in message.lower() or "error" in message.lower():
             status = BackupStatus.FAILED
 
-        return BackupReport(
+        return ParsedBackupMessage(
+            parser_name="restic",
             host=host,
             job=host,
             engine="restic",

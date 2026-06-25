@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from app.domain.report import BackupReport
+from app.parsers.parsed_message import ParsedBackupMessage
 from app.domain.status import BackupStatus
 from app.parsers.base import BackupMessageParser
 from app.parsers.utils import (
@@ -20,7 +20,7 @@ class CobianParser(BackupMessageParser):
             or "Кількість помилок:" in message
         )
 
-    def parse(self, text: str) -> BackupReport:
+    def parse(self, text: str) -> ParsedBackupMessage:
         message = strip_telegram_prefix(text)
 
         english_match = re.search(
@@ -34,7 +34,8 @@ class CobianParser(BackupMessageParser):
             host, finished_at, errors_raw = english_match.groups()
             errors = int(errors_raw)
 
-            return BackupReport(
+            return ParsedBackupMessage(
+                parser_name="cobian",
                 host=host,
                 job=host,
                 engine="cobian",
@@ -61,7 +62,8 @@ class CobianParser(BackupMessageParser):
             host, finished_at, errors_raw = ukrainian_match.groups()
             errors = int(errors_raw)
 
-            return BackupReport(
+            return ParsedBackupMessage(
+                parser_name="cobian",
                 host=host,
                 job=host,
                 engine="cobian",

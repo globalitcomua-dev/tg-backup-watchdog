@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from app.domain.status import BackupStatus
 
 
-class BackupReportIn(BaseModel):
+class BackupReportRequest(BaseModel):
     host: str = Field(min_length=1, max_length=255)
     job: str = Field(min_length=1, max_length=255)
     engine: str = Field(min_length=1, max_length=100)
@@ -24,7 +24,7 @@ class BackupReportIn(BaseModel):
     raw: dict[str, Any] | None = None
 
 
-class BackupRunOut(BaseModel):
+class BackupRunResponse(BaseModel):
     id: int
     host: str
     job: str
@@ -41,24 +41,6 @@ class BackupRunOut(BaseModel):
     destination: str | None = None
     message: str | None = None
     raw_json: dict[str, Any] | None = None
-    created_at: datetime
-
-    model_config = {
-        "from_attributes": True,
-    }
-
-
-class BackupJobIn(BaseModel):
-    host: str = Field(min_length=1, max_length=255)
-    job: str = Field(min_length=1, max_length=255)
-    engine: str = Field(default="unknown", min_length=1, max_length=100)
-    expected_every_hours: int = Field(default=24, ge=1)
-    deadline: str | None = None
-    enabled: bool = True
-
-
-class BackupJobOut(BackupJobIn):
-    id: int
     created_at: datetime
 
     model_config = {

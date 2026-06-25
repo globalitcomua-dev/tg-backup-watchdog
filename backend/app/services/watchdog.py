@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.domain.job import BackupJobDefinition
-from app.domain.report import BackupReport
+from app.domain.backup_report import BackupReport
 from app.domain.status import BackupStatus
 from app.repositories.backup_job import BackupJobRepository
 from app.repositories.backup_run import BackupRunRepository

@@ -1,0 +1,29 @@
+[project]
+name = "backup-watchdog"
+version = "0.1.0"
+description = "Universal Backup Monitoring System"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "alembic",
+    "psycopg[binary]",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
+    "requests",
+]
+
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "backend"
+]

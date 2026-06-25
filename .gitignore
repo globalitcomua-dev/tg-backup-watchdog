@@ -23,7 +23,7 @@ venv/
 htmlcov/
 
 # Alembic
-backend/alembic/versions/
+#backend/alembic/versions/
 
 # OS
 Thumbs.db

@@ -1,13 +1,30 @@
-.env
-.venv
+# Python
 __pycache__/
-*.pyc
-.idea/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual env
+.venv/
+venv/
+
+# Environment
+.env
+
+# IDE
 .vscode/
-postgres-data/
-dist/
-build/
-*.egg-info/
+.idea/
+
+# Python tooling
 .pytest_cache/
+.mypy_cache/
 .ruff_cache/
 .coverage
+htmlcov/
+
+# Alembic
+backend/alembic/versions/
+
+# OS
+Thumbs.db
+.DS_Store

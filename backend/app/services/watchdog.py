@@ -1,13 +1,10 @@
-from datetime import datetime, timezone
-
 from sqlalchemy.orm import Session
 
 from app.domain.job import BackupJobDefinition
 from app.domain.backup_report import BackupReport
-from app.domain.status import BackupStatus
 from app.repositories.backup_job import BackupJobRepository
 from app.repositories.backup_run import BackupRunRepository
-
+from app.services.check_engine import BackupCheckEngine
 
 class WatchdogService:
     def __init__(self, db: Session):
@@ -92,75 +89,12 @@ class WatchdogService:
         }
 
     def check(self):
-        now = datetime.now(timezone.utc)
-        jobs = [job for job in self.jobs.list() if job.enabled]
+        jobs = self.jobs.list()
+        latest_runs = self.runs.latest_for_jobs(jobs)
 
-        counters = {
-            "ok": 0,
-            "warning": 0,
-            "missing": 0,
-            "failed": 0,
-            "unknown": 0,
-            "total": len(jobs),
-        }
+        engine = BackupCheckEngine()
 
-        items = []
-
-        for job in jobs:
-            last_run = self.runs.latest_by_job(job.host, job.job)
-
-            if not last_run:
-                status = BackupStatus.MISSING.value
-                last_run_at = None
-                age_hours = None
-                last_backup_status = None
-                error_count = None
-                message = None
-            else:
-                last_run_at = last_run.finished_at or last_run.created_at
-
-                if last_run_at.tzinfo is None:
-                    last_run_at = last_run_at.replace(tzinfo=timezone.utc)
-
-                age_hours = round((now - last_run_at).total_seconds() / 3600, 2)
-
-                if age_hours > job.expected_every_hours:
-                    status = BackupStatus.MISSING.value
-                elif last_run.status == BackupStatus.SUCCESS.value:
-                    status = "ok"
-                elif last_run.status == BackupStatus.WARNING.value:
-                    status = BackupStatus.WARNING.value
-                elif last_run.status == BackupStatus.FAILED.value:
-                    status = BackupStatus.FAILED.value
-                else:
-                    status = BackupStatus.UNKNOWN.value
-
-                last_backup_status = last_run.status
-                error_count = last_run.error_count
-                message = last_run.message
-
-            if status in counters:
-                counters[status] += 1
-            else:
-                counters["unknown"] += 1
-
-            items.append(
-                {
-                    "host": job.host,
-                    "job": job.job,
-                    "engine": job.engine,
-                    "expected_every_hours": job.expected_every_hours,
-                    "deadline": job.deadline,
-                    "status": status,
-                    "last_run_at": last_run_at,
-                    "age_hours": age_hours,
-                    "last_backup_status": last_backup_status,
-                    "error_count": error_count,
-                    "message": message,
-                }
-            )
-
-        return {
-            "counters": counters,
-            "items": items,
-        }
+        return engine.check(
+            jobs=jobs,
+            latest_runs=latest_runs,
+        ).model_dump()

@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tg-backup-watchdog-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-backup_watchdog}
+      POSTGRES_USER: ${POSTGRES_USER:-backup_watchdog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backup_watchdog -d backup_watchdog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tg-backup-watchdog-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      API_TOKEN: ${API_TOKEN}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TELEGRAM_POLL_INTERVAL: ${TELEGRAM_POLL_INTERVAL:-5}
+    ports:
+      - "8088:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  telegram-listener:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tg-backup-watchdog-listener
+    restart: unless-stopped
+    command: ["python", "-m", "app.telegram"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TELEGRAM_POLL_INTERVAL: ${TELEGRAM_POLL_INTERVAL:-5}
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - telegram-listener

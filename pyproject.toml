@@ -27,3 +27,6 @@ target-version = "py312"
 pythonpath = [
     "backend"
 ]
+[tool.setuptools.packages.find]
+where = ["backend"]
+include = ["app*"]

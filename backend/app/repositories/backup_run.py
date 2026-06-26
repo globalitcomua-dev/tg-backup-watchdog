@@ -65,3 +65,16 @@ class BackupRunRepository:
             result[key] = self.latest_by_job(job.host, job.job)
 
         return result
+
+    def latest_unique(self, limit: int = 100) -> list[BackupRun]:
+        unique_runs: list[BackupRun] = []
+        seen: set[str] = set()
+
+        for run in self.latest(limit=limit):
+            key = f"{run.host}::{run.job}"
+            if key in seen:
+                continue
+            seen.add(key)
+            unique_runs.append(run)
+
+        return unique_runs

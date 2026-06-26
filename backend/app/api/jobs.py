@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.dependencies import get_watchdog_service
 from app.core.security import require_api_token
@@ -25,3 +25,22 @@ def list_jobs(
     _: None = Depends(require_api_token),
 ):
     return service.list_jobs()
+
+
+@router.put("/jobs/{job_id}", response_model=BackupJobResponse)
+def update_job(
+    job_id: int,
+    payload: BackupJobRequest,
+    service: WatchdogService = Depends(get_watchdog_service),
+    _: None = Depends(require_api_token),
+):
+    definition = BackupJobDefinition(**payload.model_dump())
+    job = service.update_job(job_id, definition)
+
+    if job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found",
+        )
+
+    return job

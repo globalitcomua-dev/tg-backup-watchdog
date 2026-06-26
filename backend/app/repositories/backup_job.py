@@ -45,3 +45,6 @@ class BackupJobRepository:
         )
 
         return self.db.scalars(stmt).first()
+
+    def get_by_id(self, job_id: int) -> BackupJob | None:
+        return self.db.get(BackupJob, job_id)

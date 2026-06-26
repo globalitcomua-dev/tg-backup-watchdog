@@ -4,6 +4,7 @@ from .report import (
     BackupReportRequest,
     RawMessageIn,
 )
+from .state import BackupStateView, UntrackedBackupRunView
 
 __all__ = [
     "BackupJobRequest",
@@ -11,4 +12,6 @@ __all__ = [
     "BackupRunResponse",
     "BackupReportRequest",
     "RawMessageIn",
+    "BackupStateView",
+    "UntrackedBackupRunView",
 ]

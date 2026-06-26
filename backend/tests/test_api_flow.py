@@ -121,3 +121,66 @@ def test_check_reports_missing_when_job_has_no_runs(tmp_path: Path):
     assert check_payload["items"][0]["status"] == "missing"
 
     app.dependency_overrides.clear()
+
+
+def test_states_and_untracked_runs_support_admin_flow(tmp_path: Path):
+    client = build_client(tmp_path)
+    finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    ingest = client.post(
+        "/api/v1/report/raw",
+        json={
+            "text": f"[26.06.2026 20:03] backup: Pisya {finished_at} "
+            "** Number of errors: 0. Time elapsed: 1 hours, 6 minutes, 17 seconds. **"
+        },
+    )
+    assert ingest.status_code == 200
+
+    untracked = client.get("/api/v1/runs/untracked")
+    assert untracked.status_code == 200
+    untracked_payload = untracked.json()
+    assert len(untracked_payload) == 1
+    assert untracked_payload[0]["host"] == "Pisya"
+
+    create_job = client.post(
+        "/api/v1/jobs",
+        json={
+            "host": "Pisya",
+            "job": "Pisya",
+            "engine": "cobian",
+            "expected_every_hours": 24,
+            "deadline": "03:00",
+            "enabled": True,
+        },
+    )
+    assert create_job.status_code == 200
+    job_payload = create_job.json()
+
+    states = client.get("/api/v1/states")
+    assert states.status_code == 200
+    states_payload = states.json()
+    assert len(states_payload) == 1
+    assert states_payload[0]["host"] == "Pisya"
+    assert states_payload[0]["status"] == "ok"
+
+    update_job = client.put(
+        f"/api/v1/jobs/{job_payload['id']}",
+        json={
+            "host": "Pisya",
+            "job": "Pisya-daily",
+            "engine": "cobian",
+            "expected_every_hours": 12,
+            "deadline": "02:30",
+            "enabled": False,
+        },
+    )
+    assert update_job.status_code == 200
+    update_payload = update_job.json()
+    assert update_payload["job"] == "Pisya-daily"
+    assert update_payload["enabled"] is False
+
+    admin_page = client.get("/admin")
+    assert admin_page.status_code == 200
+    assert "Backup Watchdog Admin" in admin_page.text
+
+    app.dependency_overrides.clear()

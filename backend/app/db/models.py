@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Integer, JSON, String, Text
+from sqlalchemy import BigInteger, Boolean, DateTime, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -68,4 +68,28 @@ class TelegramOffset(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         index=True,
+    )
+class BackupState(Base):
+    __tablename__ = "backup_states"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    host: Mapped[str] = mapped_column(String(255), index=True)
+    job: Mapped[str] = mapped_column(String(255), index=True)
+
+    status: Mapped[str] = mapped_column(String(32))
+    message: Mapped[str | None] = mapped_column(Text)
+
+    last_changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+    )
+
+    last_notified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    __table_args__ = (
+        UniqueConstraint("host", "job", name="uq_backup_state"),
     )

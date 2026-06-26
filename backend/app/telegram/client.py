@@ -27,3 +27,21 @@ class TelegramClient:
             raise RuntimeError(f"Telegram API error: {data}")
 
         return data.get("result", [])
+
+    def send_message(self, chat_id: str, text: str) -> dict:
+        response = requests.post(
+            f"{self.base_url}/sendMessage",
+            json={
+                "chat_id": chat_id,
+                "text": text,
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+
+        data = response.json()
+
+        if not data.get("ok"):
+            raise RuntimeError(f"Telegram API error: {data}")
+
+        return data.get("result", {})

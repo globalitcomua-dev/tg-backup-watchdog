@@ -6,16 +6,12 @@ from app.repositories.backup_job import BackupJobRepository
 from app.repositories.backup_run import BackupRunRepository
 from app.services.check_engine import BackupCheckEngine
 
+
 class WatchdogService:
     def __init__(self, db: Session):
         self.db = db
         self.runs = BackupRunRepository(db)
         self.jobs = BackupJobRepository(db)
-
-
-
-
-        
 
     def ingest(self, report: BackupReport):
         run = self.runs.create(report)
@@ -94,6 +90,9 @@ class WatchdogService:
         }
 
     def check(self):
+        return self.check_result().model_dump()
+
+    def check_result(self):
         jobs = self.jobs.list()
         latest_runs = self.runs.latest_for_jobs(jobs)
 
@@ -102,4 +101,4 @@ class WatchdogService:
         return engine.check(
             jobs=jobs,
             latest_runs=latest_runs,
-        ).model_dump()
+        )

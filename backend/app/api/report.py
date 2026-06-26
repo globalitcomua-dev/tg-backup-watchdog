@@ -23,6 +23,7 @@ def report_raw(
 ):
     return service.ingest_raw_message(payload.text)
 
+
 @router.get("/runs", response_model=list[BackupRunResponse])
 def list_runs(
     limit: int = 100,

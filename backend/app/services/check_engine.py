@@ -1,15 +1,34 @@
 from datetime import datetime, timezone
+from typing import Protocol
 
 from app.domain.check_result import BackupCheckItem, BackupCheckResult
 from app.domain.status import BackupStatus
-from app.db.models import BackupJob, BackupRun
+
+
+class BackupJobLike(Protocol):
+    host: str
+    job: str
+    engine: str
+    expected_every_hours: int
+    deadline: str | None
+    enabled: bool
+
+
+class BackupRunLike(Protocol):
+    host: str
+    job: str
+    status: str
+    finished_at: datetime | None
+    created_at: datetime
+    error_count: int | None
+    message: str | None
 
 
 class BackupCheckEngine:
     def check(
         self,
-        jobs: list[BackupJob],
-        latest_runs: dict[str, BackupRun | None],
+        jobs: list[BackupJobLike],
+        latest_runs: dict[str, BackupRunLike | None],
         now: datetime | None = None,
     ) -> BackupCheckResult:
         current_time = now or datetime.now(timezone.utc)
@@ -52,8 +71,8 @@ class BackupCheckEngine:
 
     def _check_one(
         self,
-        job: BackupJob,
-        last_run: BackupRun | None,
+        job: BackupJobLike,
+        last_run: BackupRunLike | None,
         now: datetime,
     ) -> BackupCheckItem:
         if last_run is None:

@@ -16,6 +16,8 @@ app.include_router(summary_router)
 def health():
     return {
         "status": "ok",
-        "database": settings.database_url,
+        "database_configured": bool(settings.database_url),
+        "api_token_configured": bool(settings.api_token),
+        "telegram_configured": bool(settings.telegram_bot_token),
         "log_level": settings.log_level,
     }

@@ -1,12 +1,14 @@
 from .job import BackupJobRequest, BackupJobResponse
 from .report import (
     BackupRunResponse,
-    BackupReportResponse,
+    BackupReportRequest,
+    RawMessageIn,
 )
 
 __all__ = [
     "BackupJobRequest",
     "BackupJobResponse",
     "BackupRunResponse",
-    "BackupReportResponse",
+    "BackupReportRequest",
+    "RawMessageIn",
 ]

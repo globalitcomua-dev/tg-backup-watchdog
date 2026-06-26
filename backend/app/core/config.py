@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
+    telegram_poll_interval: int = 5
+    watchdog_check_interval: int = 300
+    notify_on_initial_state: bool = False
 
     log_level: str = "INFO"
 

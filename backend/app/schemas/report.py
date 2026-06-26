@@ -6,6 +6,10 @@ from pydantic import BaseModel, Field
 from app.domain.status import BackupStatus
 
 
+class RawMessageIn(BaseModel):
+    text: str = Field(min_length=1)
+
+
 class BackupReportRequest(BaseModel):
     host: str = Field(min_length=1, max_length=255)
     job: str = Field(min_length=1, max_length=255)

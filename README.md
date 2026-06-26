@@ -79,6 +79,20 @@ View logs:
 docker compose -f docker/docker-compose.prod.yml logs -f telegram-listener
 ```
 
+## Scheduler
+
+Start periodic monitoring:
+
+```bash
+docker compose -f docker/docker-compose.prod.yml --profile watchdog-scheduler up -d
+```
+
+View logs:
+
+```bash
+docker compose -f docker/docker-compose.prod.yml logs -f watchdog-scheduler
+```
+
 ## API examples
 
 Send raw Telegram-style report:
@@ -118,7 +132,7 @@ python -m venv .venv
 Install dependencies:
 
 ```powershell
-pip install -e .
+pip install -e .[dev]
 ```
 
 Run API:

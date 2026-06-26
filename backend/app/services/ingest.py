@@ -9,27 +9,10 @@ class BackupIngestService(BackupIngress):
         self.watchdog = watchdog
         self.dispatcher = BackupParserDispatcher()
 
+    def ingest_report(self, report: BackupReport):
+        return self.watchdog.ingest(report)
+
     def ingest_raw_message(self, text: str):
         parsed = self.dispatcher.parse(text)
-
-        report = BackupReport(
-            host=parsed.host,
-            job=parsed.job,
-            engine=parsed.engine,
-            status=parsed.status,
-            backup_type=parsed.backup_type,
-            started_at=parsed.started_at,
-            finished_at=parsed.finished_at,
-            size_bytes=parsed.size_bytes,
-            error_count=parsed.error_count,
-            duration_seconds=parsed.duration_seconds,
-            snapshot_id=parsed.snapshot_id,
-            destination=parsed.destination,
-            message=parsed.message,
-            raw_json={
-                "parser": parsed.parser_name,
-                "raw": parsed.raw,
-            },
-        )
-
-        return self.watchdog.ingest(report)
+        report = parsed.to_backup_report()
+        return self.ingest_report(report)

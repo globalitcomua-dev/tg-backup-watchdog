@@ -2,7 +2,7 @@
 name = "backup-watchdog"
 version = "0.1.0"
 description = "Universal Backup Monitoring System"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 
 dependencies = [
     "fastapi",
@@ -14,6 +14,12 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.2",
+    "httpx==0.28.1",
 ]
 
 [tool.black]

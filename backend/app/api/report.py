@@ -5,7 +5,7 @@ from app.core.dependencies import (
     get_watchdog_service,
 )
 from app.core.security import require_api_token
-from app.schemas import (
+from app.schemas.report import (
     BackupRunResponse,
     RawMessageIn,
 )

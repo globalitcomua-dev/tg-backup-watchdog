@@ -48,3 +48,11 @@ class BackupJobRepository:
 
     def get_by_id(self, job_id: int) -> BackupJob | None:
         return self.db.get(BackupJob, job_id)
+
+    def delete_by_id(self, job_id: int) -> BackupJob | None:
+        job = self.get_by_id(job_id)
+        if not job:
+            return None
+
+        self.db.delete(job)
+        return job

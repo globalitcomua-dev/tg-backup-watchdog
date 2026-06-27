@@ -44,3 +44,20 @@ def update_job(
         )
 
     return job
+
+
+@router.delete("/jobs/{job_id}", response_model=BackupJobResponse)
+def delete_job(
+    job_id: int,
+    service: WatchdogService = Depends(get_watchdog_service),
+    _: None = Depends(require_api_token),
+):
+    job = service.delete_job(job_id)
+
+    if job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found",
+        )
+
+    return job

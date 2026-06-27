@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.dependencies import (
     get_ingest_service,
@@ -31,3 +31,20 @@ def list_runs(
     _: None = Depends(require_api_token),
 ):
     return service.history(limit=limit)
+
+
+@router.delete("/runs/{run_id}", response_model=BackupRunResponse)
+def delete_run(
+    run_id: int,
+    service: WatchdogService = Depends(get_watchdog_service),
+    _: None = Depends(require_api_token),
+):
+    run = service.delete_run(run_id)
+
+    if run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Run not found",
+        )
+
+    return run

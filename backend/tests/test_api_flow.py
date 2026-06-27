@@ -98,6 +98,26 @@ def test_raw_report_flow_creates_run_and_check_result(tmp_path: Path):
     app.dependency_overrides.clear()
 
 
+def test_cobian_style_raw_report_creates_run(tmp_path: Path):
+    client = build_client(tmp_path)
+
+    response = client.post(
+        "/api/v1/report/raw",
+        json={
+            "text": "[26.06.2026 22:53] backup: BiColor 2026-06-26 22:52:49 ** Number of errors: 0. Time elapsed: 0 hours, 46 minutes, 47 seconds. **",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["host"] == "BiColor"
+    assert payload["engine"] == "cobian"
+    assert payload["status"] == "success"
+    assert payload["raw_json"]["parser_name"] == "cobian"
+
+    app.dependency_overrides.clear()
+
+
 def test_check_reports_missing_when_job_has_no_runs(tmp_path: Path):
     client = build_client(tmp_path)
 
@@ -163,6 +183,13 @@ def test_states_and_untracked_runs_support_admin_flow(tmp_path: Path):
     assert states_payload[0]["host"] == "Pisya"
     assert states_payload[0]["status"] == "ok"
 
+    detail = client.get(f"/api/v1/states/{job_payload['id']}")
+    assert detail.status_code == 200
+    detail_payload = detail.json()
+    assert detail_payload["job_id"] == job_payload["id"]
+    assert detail_payload["host"] == "Pisya"
+    assert detail_payload["latest_run_id"] is not None
+
     update_job = client.put(
         f"/api/v1/jobs/{job_payload['id']}",
         json={
@@ -182,5 +209,20 @@ def test_states_and_untracked_runs_support_admin_flow(tmp_path: Path):
     admin_page = client.get("/admin")
     assert admin_page.status_code == 200
     assert "Backup Watchdog Admin" in admin_page.text
+    assert "State Details" in admin_page.text
+
+    delete_job = client.delete(f"/api/v1/jobs/{job_payload['id']}")
+    assert delete_job.status_code == 200
+
+    states_after_delete = client.get("/api/v1/states")
+    assert states_after_delete.status_code == 200
+    assert states_after_delete.json() == []
+
+    delete_run = client.delete(f"/api/v1/runs/{untracked_payload[0]['id']}")
+    assert delete_run.status_code == 200
+
+    untracked_after_delete = client.get("/api/v1/runs/untracked")
+    assert untracked_after_delete.status_code == 200
+    assert untracked_after_delete.json() == []
 
     app.dependency_overrides.clear()

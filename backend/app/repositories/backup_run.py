@@ -35,6 +35,14 @@ class BackupRunRepository:
     def get(self, run_id: int) -> BackupRun | None:
         return self.db.get(BackupRun, run_id)
 
+    def delete_by_id(self, run_id: int) -> BackupRun | None:
+        run = self.get(run_id)
+        if not run:
+            return None
+
+        self.db.delete(run)
+        return run
+
     def latest(self, limit: int = 100) -> list[BackupRun]:
         stmt = (
             select(BackupRun)

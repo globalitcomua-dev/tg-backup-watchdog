@@ -66,3 +66,11 @@ class BackupStateRepository:
 
         state.last_notified_at = notified_at or datetime.now(timezone.utc)
         return state
+
+    def delete(self, host: str, job: str) -> bool:
+        state = self.get(host, job)
+        if not state:
+            return False
+
+        self.db.delete(state)
+        return True

@@ -42,6 +42,11 @@ ADMIN_HTML = """<!doctype html>
     .actions { display:flex; gap:8px; margin-top:12px; }
     .actions button { width:auto; }
     .notice { min-height:24px; color:var(--accent2); font-size:14px; }
+    .danger { background:white; color:var(--bad); border-color:var(--bad); }
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; }
+    .detail-grid div { font-size:14px; }
+    .detail-grid strong { display:block; margin-bottom:4px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+    pre { white-space:pre-wrap; word-break:break-word; background:white; border:1px solid var(--line); border-radius:12px; padding:12px; margin:0; font-size:13px; }
     @media (max-width:960px) { .grid,.toolbar,.form-grid { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -97,12 +102,18 @@ ADMIN_HTML = """<!doctype html>
         <tbody id="untracked-body"></tbody>
       </table>
     </section>
+    <section class="panel" style="margin-top:20px;">
+      <h2>State Details</h2>
+      <p class="hint">Click a tracked state to inspect the latest parsed backup data.</p>
+      <div id="state-detail" class="muted">Select a tracked job to view more details.</div>
+    </section>
   </div>
   <script>
     const tokenInput = document.getElementById("token");
     const notice = document.getElementById("notice");
     const statesBody = document.getElementById("states-body");
     const untrackedBody = document.getElementById("untracked-body");
+    const stateDetail = document.getElementById("state-detail");
     const form = document.getElementById("job-form");
     const formTitle = document.getElementById("form-title");
     const jobIdInput = document.getElementById("job-id");
@@ -146,6 +157,47 @@ ADMIN_HTML = """<!doctype html>
       formTitle.textContent = job.id ? `Edit Job #${job.id}` : "Create Job";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+    function renderDetail(detail) {
+      if (!detail) {
+        stateDetail.innerHTML = "Select a tracked job to view more details.";
+        return;
+      }
+      const raw = detail.raw_json ? JSON.stringify(detail.raw_json, null, 2) : "No raw JSON captured.";
+      stateDetail.innerHTML = `
+        <div class="detail-grid">
+          <div><strong>Host</strong>${detail.host}</div>
+          <div><strong>Job</strong>${detail.job}</div>
+          <div><strong>Engine</strong>${detail.engine}</div>
+          <div><strong>Status</strong>${statusBadge(detail.status)}</div>
+          <div><strong>Last Backup Status</strong>${detail.last_backup_status || "-"}</div>
+          <div><strong>Expected Every Hours</strong>${detail.expected_every_hours}</div>
+          <div><strong>Deadline</strong>${detail.deadline || "-"}</div>
+          <div><strong>Enabled</strong>${detail.enabled}</div>
+          <div><strong>Last Run At</strong>${detail.last_run_at || "-"}</div>
+          <div><strong>Run Created At</strong>${detail.latest_run_created_at || "-"}</div>
+          <div><strong>Age Hours</strong>${detail.age_hours ?? "-"}</div>
+          <div><strong>Warnings/Errors</strong>${detail.error_count ?? "-"}</div>
+          <div><strong>Duration Seconds</strong>${detail.duration_seconds ?? "-"}</div>
+          <div><strong>Snapshot</strong>${detail.snapshot_id || "-"}</div>
+          <div><strong>Destination</strong>${detail.destination || "-"}</div>
+          <div><strong>Backup Type</strong>${detail.backup_type || "-"}</div>
+          <div style="grid-column:1 / -1;"><strong>Message</strong><pre>${detail.message || "No message"}</pre></div>
+          <div style="grid-column:1 / -1;"><strong>Raw JSON</strong><pre>${raw}</pre></div>
+        </div>
+      `;
+    }
+    async function deleteJob(jobId) {
+      await apiFetch(`/api/v1/jobs/${jobId}`, { method: "DELETE" });
+      setNotice(`Job #${jobId} deleted.`);
+      resetForm();
+      renderDetail(null);
+      await refreshAll();
+    }
+    async function deleteRun(runId) {
+      await apiFetch(`/api/v1/runs/${runId}`, { method: "DELETE" });
+      setNotice(`Run #${runId} deleted.`);
+      await refreshAll();
+    }
     async function renderStates(states) {
       statesBody.innerHTML = "";
       if (!states.length) {
@@ -161,11 +213,26 @@ ADMIN_HTML = """<!doctype html>
           <td>${state.expected_every_hours}h<br><span class="muted">${state.deadline || "no deadline"}</span></td>
           <td>${state.last_run_at || "never"}<br><span class="muted">age: ${state.age_hours ?? "-"}</span></td>
           <td>${state.last_changed_at || "-"}<br><span class="muted">notified: ${state.last_notified_at || "-"}</span></td>
-          <td><button type="button" class="secondary">Edit</button></td>
+          <td>
+            <div class="actions">
+              <button type="button" class="secondary edit-btn">Edit</button>
+              <button type="button" class="secondary detail-btn">Details</button>
+              <button type="button" class="danger delete-btn">Delete</button>
+            </div>
+          </td>
         `;
-        row.querySelector("button").addEventListener("click", () => {
+        row.querySelector(".edit-btn").addEventListener("click", () => {
           const job = jobs.find((item) => item.host === state.host && item.job === state.job);
           if (job) fillForm(job);
+        });
+        row.querySelector(".detail-btn").addEventListener("click", async () => {
+          const detail = await apiFetch(`/api/v1/states/${state.job_id}`);
+          renderDetail(detail);
+        });
+        row.querySelector(".delete-btn").addEventListener("click", async () => {
+          if (confirm(`Delete tracked job ${state.host}/${state.job}?`)) {
+            await deleteJob(state.job_id);
+          }
         });
         statesBody.appendChild(row);
       }
@@ -183,11 +250,21 @@ ADMIN_HTML = """<!doctype html>
           <td>${statusBadge(run.status)}</td>
           <td>${run.finished_at || run.created_at}</td>
           <td>${run.error_count ?? "-"}</td>
-          <td><button type="button" class="secondary">Track</button></td>
+          <td>
+            <div class="actions">
+              <button type="button" class="secondary track-btn">Track</button>
+              <button type="button" class="danger delete-btn">Delete</button>
+            </div>
+          </td>
         `;
-        row.querySelector("button").addEventListener("click", () => fillForm({
+        row.querySelector(".track-btn").addEventListener("click", () => fillForm({
           host: run.host, job: run.job, engine: run.engine, expected_every_hours: 24, deadline: "", enabled: true,
         }));
+        row.querySelector(".delete-btn").addEventListener("click", async () => {
+          if (confirm(`Delete untracked run #${run.id} (${run.host}/${run.job})?`)) {
+            await deleteRun(run.id);
+          }
+        });
         untrackedBody.appendChild(row);
       }
     }

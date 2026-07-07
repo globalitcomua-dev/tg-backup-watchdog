@@ -176,6 +176,22 @@ Example:
   -DurationSeconds 600
 ```
 
+If you need a ready-to-adapt script instead of a minimal contract example, use [examples/cobian_send_full.ps1](/E:/Devel/tg-backup-watchdog/examples/cobian_send_full.ps1:1). It adds defaults, validation, English/Ukrainian message generation, error handling, and optional `WATCHDOG_API_TOKEN` environment-variable support.
+
+Example:
+
+```powershell
+$env:WATCHDOG_API_TOKEN = "change_me"
+
+.\\examples\\cobian_send_full.ps1 `
+  -ApiUrl "http://127.0.0.1:8088" `
+  -Host "BiColor" `
+  -FinishedAt "2026-06-26 22:52:49" `
+  -ErrorCount 0 `
+  -DurationSeconds 2807 `
+  -Language en
+```
+
 ## Restic watchdog template
 
 Use [examples/restic_watchdog_template.ps1](/E:/Devel/tg-backup-watchdog/examples/restic_watchdog_template.ps1:1) as the canonical summary format for restic reports sent into the shared `report/raw` ingest.

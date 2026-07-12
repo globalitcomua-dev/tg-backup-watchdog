@@ -7,4 +7,4 @@ class BackupMessageHandler:
         self.ingest = ingest
 
     def handle(self, message: TelegramMessage):
-        return self.ingest.ingest_raw_message(message.text)
+        return self.ingest.ingest_telegram_message(message.text)

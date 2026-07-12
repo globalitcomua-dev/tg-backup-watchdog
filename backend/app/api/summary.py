@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.core.dependencies import get_watchdog_service
-from app.core.security import require_api_token
+from app.core.security import require_admin_token
 from fastapi import HTTPException, status
 
 from app.schemas.state import BackupStateDetailView, BackupStateView, UntrackedBackupRunView
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/v1", tags=["summary"])
 @router.get("/summary")
 def summary(
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     return service.summary()
 
@@ -21,7 +21,7 @@ def summary(
 @router.get("/check")
 def check(
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     return service.check()
 
@@ -29,7 +29,7 @@ def check(
 @router.get("/states", response_model=list[BackupStateView])
 def states(
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     return service.list_states()
 
@@ -37,7 +37,7 @@ def states(
 @router.get("/runs/untracked", response_model=list[UntrackedBackupRunView])
 def untracked_runs(
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     return service.list_untracked_runs()
 
@@ -46,7 +46,7 @@ def untracked_runs(
 def state_detail(
     job_id: int,
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     detail = service.get_state_detail(job_id)
     if detail is None:

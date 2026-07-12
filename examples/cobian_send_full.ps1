@@ -2,7 +2,7 @@
 param(
     [string]$ApiUrl = "http://127.0.0.1:8088",
 
-    [string]$ApiToken = $env:WATCHDOG_API_TOKEN,
+    [string]$ProducerToken = $env:WATCHDOG_PRODUCER_TOKEN,
 
     [ValidatePattern("^[A-Za-z0-9_-]+$")]
     [string]$Host = $env:COMPUTERNAME,
@@ -90,8 +90,8 @@ function Build-CobianRawText {
     return "$baseText`nMessage: $Message"
 }
 
-if ([string]::IsNullOrWhiteSpace($ApiToken)) {
-    throw "ApiToken is required. Pass -ApiToken or set WATCHDOG_API_TOKEN in the environment."
+if ([string]::IsNullOrWhiteSpace($ProducerToken)) {
+    throw "ProducerToken is required. Pass -ProducerToken or set WATCHDOG_PRODUCER_TOKEN in the environment."
 }
 
 if ([string]::IsNullOrWhiteSpace($Host)) {
@@ -120,7 +120,7 @@ try {
         -Method Post `
         -Uri "$ApiUrl/api/v1/report/raw" `
         -Headers @{
-            Authorization = "Bearer $ApiToken"
+            Authorization = "Bearer $ProducerToken"
         } `
         -ContentType "application/json" `
         -TimeoutSec $RequestTimeoutSec `

@@ -4,6 +4,7 @@ from .report import (
     BackupReportRequest,
     RawMessageIn,
 )
+from .producer import ProducerRequest, ProducerResponse, ProducerUpdateRequest
 from .state import BackupStateDetailView, BackupStateView, UntrackedBackupRunView
 
 __all__ = [
@@ -12,6 +13,9 @@ __all__ = [
     "BackupRunResponse",
     "BackupReportRequest",
     "RawMessageIn",
+    "ProducerRequest",
+    "ProducerResponse",
+    "ProducerUpdateRequest",
     "BackupStateDetailView",
     "BackupStateView",
     "UntrackedBackupRunView",

@@ -3,7 +3,7 @@ param(
     [string]$ApiUrl,
 
     [Parameter(Mandatory = $true)]
-    [string]$ApiToken,
+    [string]$ProducerToken,
 
     [Parameter(Mandatory = $true)]
     [string]$Host,
@@ -37,9 +37,9 @@ $body = @{
 
 Invoke-RestMethod `
     -Method Post `
-    -Uri "$ApiUrl/api/v1/report/raw" `
-    -Headers @{
-        Authorization = "Bearer $ApiToken"
+        -Uri "$ApiUrl/api/v1/report/raw" `
+        -Headers @{
+        Authorization = "Bearer $ProducerToken"
     } `
     -ContentType "application/json" `
     -Body $body

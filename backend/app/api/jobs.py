@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.dependencies import get_watchdog_service
-from app.core.security import require_api_token
+from app.core.security import require_admin_token
 from app.domain.job import BackupJobDefinition
 from app.schemas.job import BackupJobRequest, BackupJobResponse
 from app.services.watchdog import WatchdogService
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/v1", tags=["jobs"])
 def create_job(
     payload: BackupJobRequest,
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     definition = BackupJobDefinition(**payload.model_dump())
     return service.create_or_update_job(definition)
@@ -22,7 +22,7 @@ def create_job(
 @router.get("/jobs", response_model=list[BackupJobResponse])
 def list_jobs(
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     return service.list_jobs()
 
@@ -32,7 +32,7 @@ def update_job(
     job_id: int,
     payload: BackupJobRequest,
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     definition = BackupJobDefinition(**payload.model_dump())
     job = service.update_job(job_id, definition)
@@ -50,7 +50,7 @@ def update_job(
 def delete_job(
     job_id: int,
     service: WatchdogService = Depends(get_watchdog_service),
-    _: None = Depends(require_api_token),
+    _: None = Depends(require_admin_token),
 ):
     job = service.delete_job(job_id)
 

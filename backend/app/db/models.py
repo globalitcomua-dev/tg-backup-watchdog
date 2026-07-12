@@ -93,3 +93,26 @@ class BackupState(Base):
     __table_args__ = (
         UniqueConstraint("host", "job", name="uq_backup_state"),
     )
+
+
+class ProducerCredential(Base):
+    __tablename__ = "producer_credentials"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    producer_name: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    allowed_hosts: Mapped[list[str]] = mapped_column(JSON, default=list)
+    allowed_jobs: Mapped[list[str]] = mapped_column(JSON, default=list)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        index=True,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        index=True,
+    )

@@ -253,8 +253,8 @@ ADMIN_HTML = """<!doctype html>
       </div>
       <div class="toolbar">
         <div>
-          <label class="label" for="token">API Token</label>
-          <input id="token" placeholder="Paste Bearer token">
+          <label class="label" for="token">Admin API Token</label>
+          <input id="token" placeholder="Paste admin Bearer token">
         </div>
         <div>
           <label class="label" for="auto-refresh-interval">Auto Refresh</label>
@@ -394,7 +394,7 @@ ADMIN_HTML = """<!doctype html>
     let untrackedCache = [];
     let selectedStateJobId = null;
     let refreshTimer = null;
-    tokenInput.value = localStorage.getItem("backup_watchdog_token") || "";
+    tokenInput.value = localStorage.getItem("backup_watchdog_admin_token") || "";
     autoRefreshInterval.value = localStorage.getItem("backup_watchdog_refresh_interval") || "30";
     function icon(name) {
       const icons = {
@@ -414,7 +414,7 @@ ADMIN_HTML = """<!doctype html>
     function statusBadge(status) { return `<span class="badge status-${escapeHtml(status)}">${escapeHtml(status)}</span>`; }
     function getHeaders() {
       const token = tokenInput.value.trim();
-      if (!token) throw new Error("API token is required.");
+      if (!token) throw new Error("Admin API token is required.");
       return { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" };
     }
     async function apiFetch(path, options = {}) {
@@ -647,8 +647,8 @@ ADMIN_HTML = """<!doctype html>
       }
     }
     document.getElementById("save-token").addEventListener("click", () => {
-      localStorage.setItem("backup_watchdog_token", tokenInput.value.trim());
-      setNotice("Token saved in browser storage.");
+      localStorage.setItem("backup_watchdog_admin_token", tokenInput.value.trim());
+      setNotice("Admin token saved in browser storage.");
     });
     document.getElementById("refresh-all").addEventListener("click", refreshAll);
     document.getElementById("reset-form").addEventListener("click", resetForm);

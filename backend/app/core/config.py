@@ -11,7 +11,7 @@ class Settings(BaseSettings):
         "postgresql+psycopg://backup_watchdog:backup_watchdog@localhost:5432/backup_watchdog"
     )
 
-    api_token: str = ""
+    admin_api_token: str = ""
 
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""

@@ -1,4 +1,5 @@
 import time
+import logging
 
 from app.core.config import settings
 from app.db.session import SessionLocal
@@ -10,6 +11,9 @@ from app.telegram.filters import is_allowed_chat, is_backup_message, is_command
 from app.telegram.handlers.backup import BackupMessageHandler
 from app.telegram.handlers.unknown import UnknownMessageHandler
 from app.telegram.update import parse_update
+
+
+logger = logging.getLogger(__name__)
 
 
 class TelegramService:
@@ -42,7 +46,14 @@ class TelegramService:
                     return
 
                 if not is_allowed_chat(message):
-                    print(f"Skip chat_id={message.chat_id}", flush=True)
+                    logger.warning(
+                        "Telegram message rejected by chat allowlist",
+                        extra={
+                            "actor_type": "telegram",
+                            "chat_id": message.chat_id,
+                            "reason": "chat not in allowlist",
+                        },
+                    )
                     offset_repo.save_last_update_id(self.bot_name, update_id)
                     db.commit()
                     return
@@ -54,14 +65,27 @@ class TelegramService:
                     handler = BackupMessageHandler(ingest)
                     run = handler.handle(message)
 
-                    print(
-                        f"Saved telegram message_id={message.message_id} "
-                        f"host={run.host} job={run.job} status={run.status}",
-                        flush=True,
+                    logger.info(
+                        "Telegram backup message saved",
+                        extra={
+                            "actor_type": "telegram",
+                            "chat_id": message.chat_id,
+                            "message_id": message.message_id,
+                            "host": run.host,
+                            "job": run.job,
+                            "status": run.status,
+                        },
                     )
 
                 elif is_command(message):
-                    print(f"Command ignored: {message.text}", flush=True)
+                    logger.info(
+                        "Telegram command ignored",
+                        extra={
+                            "actor_type": "telegram",
+                            "chat_id": message.chat_id,
+                            "message_id": message.message_id,
+                        },
+                    )
 
                 else:
                     UnknownMessageHandler().handle(message)

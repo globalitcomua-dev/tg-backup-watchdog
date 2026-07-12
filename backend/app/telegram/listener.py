@@ -6,6 +6,8 @@ from app.telegram.service import TelegramService
 def run_listener() -> None:
     if not settings.telegram_bot_token:
         raise RuntimeError("TELEGRAM_BOT_TOKEN is not configured")
+    if not settings.telegram_chat_id:
+        raise RuntimeError("TELEGRAM_CHAT_ID is not configured")
 
     client = TelegramClient(settings.telegram_bot_token)
     service = TelegramService(client=client)

@@ -4,7 +4,7 @@ from app.telegram.update import TelegramMessage
 
 def is_allowed_chat(message: TelegramMessage) -> bool:
     if not settings.telegram_chat_id:
-        return True
+        return False
 
     return message.chat_id == str(settings.telegram_chat_id)
 

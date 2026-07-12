@@ -18,7 +18,7 @@ services:
 
     environment:
       DATABASE_URL: postgresql+psycopg://backup_watchdog:backup_watchdog@db:5432/backup_watchdog
-      API_TOKEN: change_me
+      ADMIN_API_TOKEN: change_me_admin
       TELEGRAM_POLL_INTERVAL: 5
       WATCHDOG_CHECK_INTERVAL: 300
       NOTIFY_ON_INITIAL_STATE: false

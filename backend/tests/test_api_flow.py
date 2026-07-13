@@ -259,6 +259,8 @@ def test_states_and_untracked_runs_support_admin_flow(tmp_path: Path):
     assert admin_page.status_code == 200
     assert "Backup Watchdog Admin" in admin_page.text
     assert "Admin API Token" in admin_page.text
+    assert "Manage Producers" in admin_page.text
+    assert "Suggested Next Extensions" not in admin_page.text
 
     delete_job = client.delete(f"/api/v1/jobs/{job_payload['id']}", headers=make_admin_headers())
     assert delete_job.status_code == 200

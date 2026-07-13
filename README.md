@@ -21,10 +21,6 @@ The admin UI now includes:
 - per-producer token generation and rotation
 - untracked run promotion into tracked jobs
 
-Reference view:
-
-![Backup Watchdog admin console](docs/images/admin-console-overview.png)
-
 ## Auth model
 
 The system now uses separate trust boundaries.

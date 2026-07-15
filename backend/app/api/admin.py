@@ -75,37 +75,12 @@ ADMIN_HTML = """<!doctype html>
       gap: 16px;
     }
     .hero-copy { max-width: 920px; }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: var(--panel-soft);
-      border: 1px solid var(--line);
-      color: var(--accent-strong);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
     h1, h2, h3, p { margin: 0; }
     .hero h1 {
-      margin-top: 14px;
       font-size: 54px;
       line-height: 1.02;
       letter-spacing: -.04em;
     }
-    .hero-subtitle {
-      margin-top: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 16px;
-      line-height: 1.45;
-      color: var(--muted);
-    }
-    .hero-actions { display: flex; gap: 12px; align-items: center; }
     .stats {
       margin-top: 24px;
       display: grid;
@@ -117,11 +92,11 @@ ADMIN_HTML = """<!doctype html>
       border-radius: 20px;
       border: 1px solid var(--line);
       background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
+      cursor: help;
     }
     .stat-head {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 10px;
       color: var(--muted);
       font-size: 12px;
@@ -141,7 +116,10 @@ ADMIN_HTML = """<!doctype html>
       margin-top: 8px;
       color: var(--muted);
       font-size: 13px;
+      min-height: 19px;
     }
+    .stat-note.critical { color: var(--bad); font-weight: 800; }
+    .stat-note.good { color: var(--ok); font-weight: 800; }
     .toolbar {
       margin-top: 20px;
       align-items: end;
@@ -190,6 +168,9 @@ ADMIN_HTML = """<!doctype html>
     }
     button {
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: var(--accent);
       border-color: var(--accent);
       color: #ffffff;
@@ -202,7 +183,7 @@ ADMIN_HTML = """<!doctype html>
       background: #fff;
       color: var(--ink);
       border-color: #bfd8c3;
-      box-shadow: none;
+      box-shadow: 0 8px 18px rgba(17, 17, 17, .06);
     }
     button.ghost {
       background: transparent;
@@ -256,6 +237,7 @@ ADMIN_HTML = """<!doctype html>
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
     }
     .hint-row {
       display: flex;
@@ -264,6 +246,11 @@ ADMIN_HTML = """<!doctype html>
       color: var(--muted);
       font-size: 14px;
       min-height: 22px;
+    }
+    .sync-status {
+      color: var(--accent-strong);
+      font-size: 15px;
+      font-weight: 800;
     }
     .filter-bar {
       display: grid;
@@ -349,6 +336,8 @@ ADMIN_HTML = """<!doctype html>
     .status-warning { background: var(--warn); }
     .status-failed, .status-missing { background: var(--bad); }
     .status-unknown { background: var(--unknown); }
+    .status-producer-missing { background: #b52f2f; }
+    .status-missing-report { background: var(--bad); }
     .metric-stack {
       display: grid;
       gap: 4px;
@@ -365,9 +354,19 @@ ADMIN_HTML = """<!doctype html>
     }
     .actions button {
       width: auto;
-      min-width: 0;
+      min-width: 148px;
       padding: 11px 16px;
       flex: 0 0 auto;
+    }
+    .panel-actions button,
+    .toolbar-actions button,
+    .form-actions button,
+    .token-row button,
+    .modal-close {
+      width: auto;
+      min-width: 148px;
+      padding-left: 18px;
+      padding-right: 18px;
     }
     .empty-state {
       padding: 28px 18px;
@@ -430,8 +429,11 @@ ADMIN_HTML = """<!doctype html>
       height: 18px;
       fill: currentColor;
     }
+    .has-tooltip,
     .info {
       position: relative;
+    }
+    .info {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -448,6 +450,7 @@ ADMIN_HTML = """<!doctype html>
       flex: 0 0 auto;
     }
     .info:hover { transform: none; box-shadow: none; }
+    .has-tooltip::after,
     .info::after {
       content: attr(data-tooltip);
       position: absolute;
@@ -471,13 +474,14 @@ ADMIN_HTML = """<!doctype html>
       pointer-events: none;
       transition: opacity .12s ease, transform .12s ease;
     }
+    .has-tooltip:hover::after, .has-tooltip:focus-visible::after,
     .info:hover::after, .info:focus-visible::after {
       opacity: 1;
       transform: translateX(-50%) translateY(-2px);
     }
     .sync-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: var(--ok);
       box-shadow: 0 0 0 0 rgba(31, 157, 87, .5);
@@ -496,7 +500,7 @@ ADMIN_HTML = """<!doctype html>
     }
     .modal.open { display: flex; }
     .modal-card {
-      width: min(1120px, 100%);
+      width: min(1320px, 96vw);
       max-height: min(92vh, 1100px);
       overflow: auto;
       padding: 22px;
@@ -523,7 +527,7 @@ ADMIN_HTML = """<!doctype html>
     }
     .modal-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(360px, .9fr);
+      grid-template-columns: minmax(0, 1.65fr) minmax(360px, .85fr);
       gap: 18px;
     }
     .stack {
@@ -570,11 +574,34 @@ ADMIN_HTML = """<!doctype html>
     }
     .token-row button {
       width: auto;
-      min-width: 120px;
+      min-width: 148px;
     }
     .producer-table td, .producer-table th { padding: 14px 12px; }
     .producer-table .actions { justify-content: flex-end; }
     .hidden { display: none !important; }
+    .producer-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .producer-chip.ok {
+      background: var(--accent-soft);
+      border-color: #cbefcb;
+      color: #0f6e2c;
+    }
+    .producer-chip.missing {
+      background: #fff0f0;
+      border-color: #f0c0c0;
+      color: var(--bad);
+    }
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(31, 157, 87, .35); }
       70% { box-shadow: 0 0 0 10px rgba(31, 157, 87, 0); }
@@ -593,38 +620,29 @@ ADMIN_HTML = """<!doctype html>
     <section class="hero">
       <div class="hero-top">
         <div class="hero-copy">
-          <div class="eyebrow"><svg class="title-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l7 4v6c0 5.24-3.44 9.97-7 11-3.56-1.03-7-5.76-7-11V6l7-4zm0 4.18L7 8.73V12c0 3.97 2.39 7.9 5 8.93 2.61-1.03 5-4.96 5-8.93V8.73l-5-2.55zm-1 3.82h2v4h-2V10zm0 5h2v2h-2v-2z"/></svg>Operations Console</div>
           <h1>Backup Watchdog</h1>
-          <div class="hero-subtitle">
-            <span>Backup monitoring console for jobs, live state, and producer-managed report intake.</span>
-            <button type="button" class="info" data-tooltip="The admin console manages tracked jobs, report producers, and the latest parsed backup state without requiring direct shell access to the host.">i</button>
-          </div>
-        </div>
-        <div class="hero-actions">
-          <button type="button" id="open-producers" class="secondary">Producers</button>
-          <button type="button" id="open-create-job">+ Job</button>
         </div>
       </div>
       <div class="stats">
-        <div class="stat-card">
-          <div class="stat-head">Tracked Jobs <button type="button" class="info" data-tooltip="How many jobs are registered in the watchdog and participate in SLA checks.">i</button></div>
+        <div class="stat-card has-tooltip" data-tooltip="How many jobs are registered in the watchdog and participate in SLA checks.">
+          <div class="stat-head">Tracked Jobs</div>
           <strong id="stat-tracked" class="stat-value">0</strong>
           <small id="stat-tracked-note" class="stat-note">No jobs loaded yet</small>
         </div>
-        <div class="stat-card">
-          <div class="stat-head">Need Attention <button type="button" class="info" data-tooltip="Jobs that are currently missing, warning, failed, or otherwise not green.">i</button></div>
+        <div class="stat-card has-tooltip" data-tooltip="Jobs that currently need action: missing report, producer missing, warning, failed, or other non-green state.">
+          <div class="stat-head">Need Attention</div>
           <strong id="stat-attention" class="stat-value">0</strong>
           <small id="stat-attention-note" class="stat-note">Everything looks green</small>
         </div>
-        <div class="stat-card">
-          <div class="stat-head">Untracked Runs <button type="button" class="info" data-tooltip="Recent reports that were parsed successfully but do not yet map to a tracked job definition.">i</button></div>
+        <div class="stat-card has-tooltip" data-tooltip="Recent reports that were parsed successfully but do not yet map to a tracked job definition.">
+          <div class="stat-head">Untracked Runs</div>
           <strong id="stat-untracked" class="stat-value">0</strong>
           <small id="stat-untracked-note" class="stat-note">No recent untracked reports</small>
         </div>
-        <div class="stat-card">
-          <div class="stat-head">Live Sync <button type="button" class="info" data-tooltip="Current auto-refresh cadence for the admin console.">i</button></div>
-          <strong id="stat-refresh" class="stat-value">30s</strong>
-          <small id="stat-refresh-note" class="stat-note">Auto refresh enabled</small>
+        <div class="stat-card has-tooltip" data-tooltip="Count of configured producers. Jobs without a matching producer cannot deliver reports through protected ingest.">
+          <div class="stat-head">Producers</div>
+          <strong id="stat-producers" class="stat-value" style="color: var(--ok);">0</strong>
+          <small id="stat-producers-note" class="stat-note critical">0 jobs without producer</small>
         </div>
       </div>
       <div class="toolbar">
@@ -658,14 +676,14 @@ ADMIN_HTML = """<!doctype html>
           <div class="panel-title">
             <div class="title-line">
               <h2>Tracked States</h2>
-              <button type="button" class="info" data-tooltip="The company or job name is primary. Host and engine remain visible as compact metadata without cluttering the table.">i</button>
             </div>
-            <div class="hint-row">
+            <div class="hint-row sync-status">
               <span class="sync-dot"></span>
               <span id="last-refresh-label">Waiting for first sync</span>
             </div>
           </div>
           <div class="panel-actions">
+            <button type="button" id="open-producers" class="secondary">Producers</button>
             <button type="button" id="header-open-create-job">+ Add Job</button>
           </div>
         </div>
@@ -678,7 +696,8 @@ ADMIN_HTML = """<!doctype html>
             <label class="label" for="status-filter">Status</label>
             <select id="status-filter">
               <option value="all">All statuses</option>
-              <option value="missing">Missing</option>
+              <option value="producer missing">Producer missing</option>
+              <option value="missing report">Missing report</option>
               <option value="failed">Failed</option>
               <option value="warning">Warning</option>
               <option value="ok">OK</option>
@@ -695,18 +714,18 @@ ADMIN_HTML = """<!doctype html>
         <div class="table-wrap">
           <table>
             <colgroup>
-              <col style="width:28%">
+              <col style="width:31%">
               <col style="width:10%">
-              <col style="width:10%">
+              <col style="width:13%">
               <col style="width:16%">
-              <col style="width:16%">
-              <col style="width:20%">
+              <col style="width:15%">
+              <col style="width:15%">
             </colgroup>
             <thead>
               <tr>
                 <th>Company / Job</th>
                 <th>Status</th>
-                <th>SLA</th>
+                <th>Producer</th>
                 <th>Last Run</th>
                 <th>Changed</th>
                 <th>Action</th>
@@ -770,7 +789,7 @@ ADMIN_HTML = """<!doctype html>
       <div class="modal-head">
         <div class="modal-copy">
           <h2 id="form-title">Create Job</h2>
-          <p>Register a tracked job or update an existing one. This modal is also opened directly from untracked reports.</p>
+          <p id="job-modal-hint">Register a tracked job or update an existing one. This modal is also opened directly from untracked reports.</p>
         </div>
         <button type="button" class="secondary modal-close" data-close-modal="job-modal">Close</button>
       </div>
@@ -799,7 +818,7 @@ ADMIN_HTML = """<!doctype html>
       <div class="modal-head">
         <div class="modal-copy">
           <h2 id="producer-form-title">Manage Producers</h2>
-          <p>Create report producers, rotate their tokens, and restrict each one to specific hosts and jobs.</p>
+          <p id="producer-modal-hint">Create report producers, rotate their tokens, and restrict each one to specific hosts and jobs.</p>
         </div>
         <button type="button" class="secondary modal-close" data-close-modal="producer-modal">Close</button>
       </div>
@@ -810,12 +829,12 @@ ADMIN_HTML = """<!doctype html>
             <div class="table-wrap">
               <table class="producer-table">
                 <colgroup>
-                  <col style="width:21%">
-                  <col style="width:19%">
-                  <col style="width:19%">
-                  <col style="width:12%">
-                  <col style="width:13%">
-                  <col style="width:16%">
+                  <col style="width:20%">
+                  <col style="width:18%">
+                  <col style="width:18%">
+                  <col style="width:11%">
+                  <col style="width:15%">
+                  <col style="width:18%">
                 </colgroup>
                 <thead>
                   <tr>
@@ -893,10 +912,12 @@ ADMIN_HTML = """<!doctype html>
     const statAttentionNote = document.getElementById("stat-attention-note");
     const statUntracked = document.getElementById("stat-untracked");
     const statUntrackedNote = document.getElementById("stat-untracked-note");
-    const statRefresh = document.getElementById("stat-refresh");
-    const statRefreshNote = document.getElementById("stat-refresh-note");
+    const statProducers = document.getElementById("stat-producers");
+    const statProducersNote = document.getElementById("stat-producers-note");
     const jobModal = document.getElementById("job-modal");
     const producerModal = document.getElementById("producer-modal");
+    const jobModalHint = document.getElementById("job-modal-hint");
+    const producerModalHint = document.getElementById("producer-modal-hint");
     const producerFields = {
       producerName: document.getElementById("producer-name"),
       producerEnabled: document.getElementById("producer-enabled"),
@@ -917,6 +938,7 @@ ADMIN_HTML = """<!doctype html>
     let statesCache = [];
     let untrackedCache = [];
     let producersCache = [];
+    let derivedStatesCache = [];
     let selectedStateJobId = null;
     let refreshTimer = null;
 
@@ -951,8 +973,14 @@ ADMIN_HTML = """<!doctype html>
       modal.setAttribute("aria-hidden", "true");
     }
 
-    function statusBadge(status) {
-      return `<span class="badge status-${escapeHtml(status)}">${escapeHtml(status)}</span>`;
+    function normalizeStatusClass(status) {
+      return String(status || "unknown").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    }
+
+    function statusBadge(status, tooltip = "") {
+      const tooltipAttr = tooltip ? ` data-tooltip="${escapeHtml(tooltip)}"` : "";
+      const tooltipClass = tooltip ? " has-tooltip" : "";
+      return `<span class="badge status-${normalizeStatusClass(status)}${tooltipClass}"${tooltipAttr}>${escapeHtml(status)}</span>`;
     }
 
     function getHeaders() {
@@ -1003,6 +1031,42 @@ ADMIN_HTML = """<!doctype html>
       return (values || []).length ? escapeHtml(values.join(", ")) : "Any";
     }
 
+    function matchesProducer(jobLike, producer) {
+      if (!producer || producer.enabled === false) {
+        return false;
+      }
+      const hosts = producer.allowed_hosts || [];
+      const jobs = producer.allowed_jobs || [];
+      const hostAllowed = hosts.length === 0 || hosts.includes(jobLike.host);
+      const jobAllowed = jobs.length === 0 || jobs.includes(jobLike.job);
+      return hostAllowed && jobAllowed;
+    }
+
+    function findProducerForJob(jobLike) {
+      return producersCache.find((producer) => matchesProducer(jobLike, producer)) || null;
+    }
+
+    function deriveStatePresentation(state) {
+      const producer = findProducerForJob(state);
+      const hasProducer = Boolean(producer);
+      const backendStatus = String(state.status || "unknown").toLowerCase();
+      let displayStatus = backendStatus;
+      if (!hasProducer) {
+        displayStatus = "producer missing";
+      } else if (backendStatus === "missing") {
+        displayStatus = "missing report";
+      }
+      return {
+        ...state,
+        producer_name: producer ? producer.producer_name : null,
+        has_producer: hasProducer,
+        producer_display: producer ? producer.producer_name : "No producer",
+        producer_id: producer ? producer.id : null,
+        display_status: displayStatus,
+        status_tooltip: `SLA: every ${state.expected_every_hours}h${state.deadline ? `, deadline ${state.deadline}` : ""}`,
+      };
+    }
+
     function generateTokenValue() {
       const bytes = new Uint8Array(24);
       crypto.getRandomValues(bytes);
@@ -1026,6 +1090,7 @@ ADMIN_HTML = """<!doctype html>
       fields.expectedHours.value = "24";
       fields.enabled.value = "true";
       formTitle.textContent = "Create Job";
+      jobModalHint.textContent = "Register a tracked job or update an existing one. This modal is also opened directly from untracked reports.";
     }
 
     function fillForm(job) {
@@ -1037,6 +1102,7 @@ ADMIN_HTML = """<!doctype html>
       fields.deadline.value = job.deadline || "";
       fields.enabled.value = String(job.enabled ?? true);
       formTitle.textContent = job.id ? `Edit Job #${job.id}` : "Create Job";
+      jobModalHint.textContent = job.modal_hint || "Register a tracked job or update an existing one. This modal is also opened directly from untracked reports.";
       openModal(jobModal);
     }
 
@@ -1046,6 +1112,7 @@ ADMIN_HTML = """<!doctype html>
       producerPanelTitle.textContent = "Create Producer";
       producerFields.producerEnabled.value = "true";
       producerFields.producerToken.value = "";
+      producerModalHint.textContent = "Create report producers, rotate their tokens, and restrict each one to specific hosts and jobs.";
     }
 
     function fillProducerForm(producer) {
@@ -1057,12 +1124,14 @@ ADMIN_HTML = """<!doctype html>
       producerFields.producerJobs.value = (producer.allowed_jobs || []).join(", ");
       producerFields.producerDescription.value = producer.description || "";
       producerPanelTitle.textContent = `Edit Producer #${producer.id}`;
+      producerModalHint.textContent = producer.modal_hint || "Update producer identity, allowed hosts/jobs, or rotate its token.";
     }
 
     function updateRefreshCadenceLabel() {
       const seconds = Number(autoRefreshInterval.value);
-      statRefresh.textContent = seconds ? `${seconds}s` : "Paused";
-      statRefreshNote.textContent = seconds ? "Auto refresh enabled" : "Background syncing paused";
+      if (!statesCache.length) {
+        lastRefreshLabel.textContent = seconds ? `Auto refresh every ${seconds}s` : "Auto refresh paused";
+      }
     }
 
     function scheduleAutoRefresh() {
@@ -1083,14 +1152,18 @@ ADMIN_HTML = """<!doctype html>
     }
 
     function updateStats(states, runs) {
-      const needsAttention = states.filter((item) => !["ok", "success"].includes(item.status)).length;
+      const needsAttention = states.filter((item) => !["ok", "success"].includes(item.display_status)).length;
       const enabledCount = states.filter((item) => item.enabled !== false).length;
+      const missingProducerCount = states.filter((item) => !item.has_producer).length;
       statTracked.textContent = String(states.length);
-      statTrackedNote.textContent = states.length ? `${enabledCount} enabled jobs` : "No jobs loaded yet";
+      statTrackedNote.textContent = states.length ? "" : "";
       statAttention.textContent = String(needsAttention);
-      statAttentionNote.textContent = needsAttention ? "Review non-green states" : "Everything looks green";
+      statAttentionNote.textContent = "";
       statUntracked.textContent = String(runs.length);
-      statUntrackedNote.textContent = runs.length ? "Recent reports waiting for promotion" : "No recent untracked reports";
+      statUntrackedNote.textContent = "";
+      statProducers.textContent = String(producersCache.filter((item) => item.enabled !== false).length);
+      statProducersNote.textContent = `${missingProducerCount} jobs without producer`;
+      statProducersNote.className = `stat-note ${missingProducerCount ? "critical" : "good"}`;
     }
 
     function populateEngineFilter(states, runs) {
@@ -1198,15 +1271,15 @@ ADMIN_HTML = """<!doctype html>
       const normalizedSearch = stateSearchInput.value.trim().toLowerCase();
       const filteredStates = states
         .filter((state) => {
-          const statusMatch = statusFilter.value === "all" || state.status === statusFilter.value;
+          const statusMatch = statusFilter.value === "all" || state.display_status === statusFilter.value;
           const engineMatch = engineFilter.value === "all" || (state.engine || "unknown") === engineFilter.value;
           const haystack = `${state.job} ${state.host} ${state.engine}`.toLowerCase();
           const textMatch = !normalizedSearch || haystack.includes(normalizedSearch);
           return statusMatch && engineMatch && textMatch;
         })
         .sort((left, right) => {
-          const weight = { missing: 0, failed: 1, warning: 2, unknown: 3, ok: 4, success: 4 };
-          return (weight[left.status] ?? 9) - (weight[right.status] ?? 9);
+          const weight = { "producer missing": 0, "missing report": 1, failed: 2, warning: 3, unknown: 4, ok: 5, success: 5 };
+          return (weight[left.display_status] ?? 9) - (weight[right.display_status] ?? 9);
         });
 
       if (!filteredStates.length) {
@@ -1219,21 +1292,20 @@ ADMIN_HTML = """<!doctype html>
         const lastRun = formatDateParts(state.last_run_at);
         const changed = formatDateParts(state.last_changed_at);
         const notified = formatDateParts(state.last_notified_at);
+        const producerChip = state.has_producer
+          ? `<span class="producer-chip ok">${escapeHtml(state.producer_name)}</span>`
+          : `<span class="producer-chip missing">No producer</span>`;
         row.innerHTML = `
           <td>
             <div class="job-main">${escapeHtml(state.job)}</div>
             <div class="meta-row">
               <span class="meta-pill">${escapeHtml(state.host)}</span>
               <span class="engine-chip">${icon("monitor")}${escapeHtml(state.engine || "unknown")}</span>
-              <button type="button" class="info" data-tooltip="Tracked backup job on host ${escapeHtml(state.host)}.">i</button>
             </div>
           </td>
-          <td>${statusBadge(state.status)}</td>
+          <td>${statusBadge(state.display_status, state.status_tooltip)}</td>
           <td>
-            <div class="metric-stack">
-              <span>${escapeHtml(state.expected_every_hours)}h</span>
-              <span class="metric-sub">${escapeHtml(state.deadline || "no deadline")}</span>
-            </div>
+            <div class="metric-stack">${producerChip}</div>
           </td>
           <td>
             <div class="metric-stack">
@@ -1259,7 +1331,12 @@ ADMIN_HTML = """<!doctype html>
         `;
         row.querySelector(".edit-btn").addEventListener("click", () => {
           const job = jobsCache.find((item) => item.host === state.host && item.job === state.job);
-          if (job) fillForm(job);
+          if (job) fillForm({
+            ...job,
+            modal_hint: state.has_producer
+              ? "Update the tracked job configuration."
+              : "This job has no producer yet. Save it, then add a producer so protected ingest can accept reports for this host/job.",
+          });
         });
         row.querySelector(".detail-btn").addEventListener("click", async () => {
           selectedStateJobId = state.job_id;
@@ -1309,6 +1386,7 @@ ADMIN_HTML = """<!doctype html>
           expected_every_hours: 24,
           deadline: "",
           enabled: true,
+          modal_hint: "Create the tracked job first. Right after saving, the console will offer to prefill a producer for the same host/job.",
         }));
         row.querySelector(".delete-btn").addEventListener("click", async () => {
           if (confirm(`Delete untracked run #${run.id} (${run.host}/${run.job})?`)) {
@@ -1330,12 +1408,14 @@ ADMIN_HTML = """<!doctype html>
         jobsCache = jobs;
         statesCache = states;
         untrackedCache = untracked;
-        updateStats(statesCache, untrackedCache);
-        populateEngineFilter(statesCache, untrackedCache);
-        await renderStates(statesCache);
+        producersCache = await apiFetch("/api/v1/producers");
+        derivedStatesCache = statesCache.map(deriveStatePresentation);
+        updateStats(derivedStatesCache, untrackedCache);
+        populateEngineFilter(derivedStatesCache, untrackedCache);
+        await renderStates(derivedStatesCache);
         renderUntracked(untrackedCache);
         if (selectedStateJobId) {
-          const stillExists = statesCache.some((state) => state.job_id === selectedStateJobId);
+          const stillExists = derivedStatesCache.some((state) => state.job_id === selectedStateJobId);
           if (stillExists) {
             const detail = await apiFetch(`/api/v1/states/${selectedStateJobId}`);
             renderDetail(detail);
@@ -1353,7 +1433,9 @@ ADMIN_HTML = """<!doctype html>
 
     async function openProducerModal() {
       openModal(producerModal);
-      resetProducerForm();
+      if (!producerIdInput.value) {
+        resetProducerForm();
+      }
       try {
         await refreshProducers();
       } catch (error) {
@@ -1368,10 +1450,6 @@ ADMIN_HTML = """<!doctype html>
 
     document.getElementById("refresh-all").addEventListener("click", () => refreshAll());
     document.getElementById("open-producers").addEventListener("click", openProducerModal);
-    document.getElementById("open-create-job").addEventListener("click", () => {
-      resetForm();
-      openModal(jobModal);
-    });
     document.getElementById("header-open-create-job").addEventListener("click", () => {
       resetForm();
       openModal(jobModal);
@@ -1409,9 +1487,9 @@ ADMIN_HTML = """<!doctype html>
     });
 
     autoRefreshInterval.addEventListener("change", scheduleAutoRefresh);
-    stateSearchInput.addEventListener("input", () => renderStates(statesCache));
-    statusFilter.addEventListener("change", () => renderStates(statesCache));
-    engineFilter.addEventListener("change", () => renderStates(statesCache));
+    stateSearchInput.addEventListener("input", () => renderStates(derivedStatesCache));
+    statusFilter.addEventListener("change", () => renderStates(derivedStatesCache));
+    engineFilter.addEventListener("change", () => renderStates(derivedStatesCache));
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1433,6 +1511,22 @@ ADMIN_HTML = """<!doctype html>
         closeModal(jobModal);
         resetForm();
         await refreshAll();
+        const producerExists = producersCache.some((producer) => matchesProducer({ host: payload.host, job: payload.job }, producer));
+        if (!producerExists && confirm("Job without producer will not receive protected reports. Create the producer now?")) {
+          fillProducerForm({
+            id: "",
+            producer_name: `producer-${payload.host}`.toLowerCase(),
+            allowed_hosts: [payload.host],
+            allowed_jobs: [payload.job],
+            description: `Producer for ${payload.host}/${payload.job}`,
+            enabled: true,
+            modal_hint: "The job is already created. Generate a token, review host/job binding, and save the producer.",
+          });
+          producerIdInput.value = "";
+          producerPanelTitle.textContent = "Create Producer";
+          producerFields.producerToken.value = "";
+          openModal(producerModal);
+        }
       } catch (error) {
         setNotice(error.message, true);
       }
@@ -1465,8 +1559,24 @@ ADMIN_HTML = """<!doctype html>
           body: JSON.stringify(payload),
         });
         setNotice(producerId ? "Producer updated." : "Producer created.");
+        const suggestedHost = payload.allowed_hosts[0] || "";
+        const suggestedJob = payload.allowed_jobs[0] || suggestedHost;
         await refreshProducers();
         resetProducerForm();
+        if (!producerId && (suggestedHost || suggestedJob)) {
+          const matchingJob = jobsCache.find((job) => job.host === suggestedHost && job.job === suggestedJob);
+          if (!matchingJob && confirm("Producer created. Create the matching job now?")) {
+            fillForm({
+              host: suggestedHost,
+              job: suggestedJob,
+              engine: "unknown",
+              expected_every_hours: 24,
+              deadline: "",
+              enabled: true,
+              modal_hint: "The producer is already prepared. Confirm the tracked job settings and save it.",
+            });
+          }
+        }
       } catch (error) {
         setNotice(error.message, true);
       }
